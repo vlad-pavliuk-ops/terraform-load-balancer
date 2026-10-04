@@ -89,10 +89,13 @@ resource "aws_launch_template" "this" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-    set -e
-    
+
+    dnf update -y
     dnf install -y httpd jq
 
+    systemctl enable httpd
+    systemctl start httpd
+    
     TOKEN=$(curl -X PUT \
       -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" \
       http://169.254.169.254/latest/api/token)
@@ -106,14 +109,14 @@ resource "aws_launch_template" "this" {
       http://169.254.169.254/latest/meta-data/local-ipv4)
 
     cat > /var/www/html/index.html <<HTML
-        Instance ID: $INSTANCE_ID
-        Private IP: $PRIVATE_IP
+    <html>
+      <body>
+        <h1>Application Instance</h1>
+        <p>Instance ID: $INSTANCE_ID</p>
+        <p>Private IP: $PRIVATE_IP</p>
+      </body>
+    </html>
     HTML
-
-    systemctl enable httpd
-    systemctl start httpd
-
-    dnf update -y
   EOF
   )
 
