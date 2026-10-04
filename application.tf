@@ -73,7 +73,7 @@ resource "aws_launch_template" "this" {
   }
 
   network_interfaces {
-    associate_public_ip_address = false
+    associate_public_ip_address = true
     delete_on_termination       = true
 
     security_groups = [
@@ -141,8 +141,8 @@ resource "aws_autoscaling_group" "this" {
   max_size         = var.max_size
 
   vpc_zone_identifier = [
-    data.aws_subnet.private_a.id,
-    data.aws_subnet.private_b.id
+    data.aws_subnet.public_a.id,
+    data.aws_subnet.public_b.id
   ]
 
   launch_template {
