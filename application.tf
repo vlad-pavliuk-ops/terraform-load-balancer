@@ -89,12 +89,9 @@ resource "aws_launch_template" "this" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-
-    dnf update -y
-    dnf install -y httpd jq curl
-
-    systemctl enable httpd
-    systemctl start httpd
+    set -e
+    
+    dnf install -y httpd jq
 
     TOKEN=$(curl -X PUT \
       -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" \
@@ -109,17 +106,14 @@ resource "aws_launch_template" "this" {
       http://169.254.169.254/latest/meta-data/local-ipv4)
 
     cat > /var/www/html/index.html <<HTML
-    <html>
-      <head>
-        <title>Terraform Application</title>
-      </head>
-      <body>
-        <h1>Application Instance</h1>
-        <p>Instance ID: $INSTANCE_ID</p>
-        <p>Private IP: $PRIVATE_IP</p>
-      </body>
-    </html>
+        Instance ID: $INSTANCE_ID
+        Private IP: $PRIVATE_IP
     HTML
+
+    systemctl enable httpd
+    systemctl start httpd
+
+    dnf update -y
   EOF
   )
 
