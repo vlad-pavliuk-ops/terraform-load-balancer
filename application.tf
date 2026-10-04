@@ -151,10 +151,7 @@ resource "aws_autoscaling_group" "this" {
   }
 
   lifecycle {
-    ignore_changes = [
-      load_balancers,
-      target_group_arns
-    ]
+    ignore_changes = [load_balancers, target_group_arns]
   }
 
   tag {
